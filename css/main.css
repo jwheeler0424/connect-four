@@ -1,0 +1,14 @@
+table {
+    border: solid 1px #000;
+}
+
+td {
+    border: solid 1px #000;
+    cursor: pointer;
+    height: 50px;
+    width: 50px;
+}
+
+td.activeColumn {
+    border-color: blue;
+}
