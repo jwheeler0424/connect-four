@@ -155,25 +155,25 @@ export class Game
     {
         // check vertical space
         let vertical = this.checkVertical(player, row, col);
-        if (vertical.length >= 4) {
+        if (vertical.length === 4) {
             return vertical
         }
 
         // check horizontal space
         let horizontal = this.checkHorizontal(player, row, col);
-        if (horizontal.length >= 4) {
+        if (horizontal.length === 4) {
             return horizontal
         }
 
         // check forward diagonal
         let diagForward = this.checkDiagForward(player, row, col);
-        if (diagForward.length >= 4) {
+        if (diagForward.length === 4) {
             return diagForward
         }
 
         // check backward diagonal
         let diagBackward = this.checkDiagBackward(player, row, col);
-        if (diagBackward.length >= 4) {
+        if (diagBackward.length === 4) {
             return diagBackward
         }
         
