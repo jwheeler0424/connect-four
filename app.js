@@ -22,3 +22,6 @@ let player1 = new Player()
 let player2 = new Player()
 
 game.drawBoard();
+
+
+player1.login('player1', 'password')
