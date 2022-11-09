@@ -19,19 +19,24 @@ export class Player
      *  - username
      *  - password
      * 
-     * @param form  The login form element
+     * @param username  The login form username element
+     * @param password  The login form password element
      */
-    login(form)
+    login(username, password)
     {
         const request = new XMLHttpRequest();
-        let formData = new FormData(form);
-
-        request.addEventListener('loadend', (e) => {
-            console.log(e.target.response)
-        })
+        let formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
         
         request.open('post', './server/login.php');
-        request.send(formData)
+        request.send(formData);
+        
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                console.log(JSON.parse(this.response))
+            }
+        }
     }
 
     /**
@@ -49,12 +54,14 @@ export class Player
     {
         const request = new XMLHttpRequest();
         let formData = new FormData(form);
-
-        request.addEventListener('loadend', (e) => {
-            console.log(e.target.response)
-        })
         
         request.open('post', './server/register.php');
-        request.send(formData)
+        request.send(formData);
+        
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                console.log(this.responseText)
+            }
+        }
     }
 }
