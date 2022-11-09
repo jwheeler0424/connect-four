@@ -1,7 +1,8 @@
 <?php
-
 /**
  * Configuration file for php server
+ * 
+ * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu>
  */
 
 // ** MySQL settings ** //

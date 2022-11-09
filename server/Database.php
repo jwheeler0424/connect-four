@@ -2,8 +2,7 @@
 /**
  * Database Class
  * 
- * PHP Version 8.1.9
- * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu
+ * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu>
  */
 include_once('./config.php');
 use PDO;
