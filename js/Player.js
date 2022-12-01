@@ -64,4 +64,9 @@ export class Player
             }
         }
     }
+
+    getPlayer()
+    {
+        return false;
+    }
 }

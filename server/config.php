@@ -7,7 +7,7 @@
 
 // ** MySQL settings ** //
 /** The name of the database for di-framework */
-define( 'DB_NAME', 'connect_four' );
+define( 'DB_NAME', 'connectfour_as_jw' );
 
 /** MySQL database username */
 define( 'DB_USER', 'root' );

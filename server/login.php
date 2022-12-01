@@ -6,10 +6,11 @@
  */
 //include_once('./Database.php');
 //date_default_timezone_set('America/Los_Angeles');
-$date = new DateTime();
+// $date = new DateTime();
 
 // echo $_POST['username'];
 echo json_encode([
+    'status' => 'success',
     'username' => $_POST['username'],
-    'date' => $date
+    'password' => $_POST['password']
 ]);
