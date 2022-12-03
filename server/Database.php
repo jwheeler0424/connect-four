@@ -5,8 +5,6 @@
  * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu>
  */
 include_once('./config.php');
-use PDO;
-use PDOException;
 
 class Database
 {
@@ -119,6 +117,16 @@ class Database
     public function rowCount()
     {
         return $this->statement->rowCount();
+    }
+
+    /**
+     * Get the ID of the last record inserted
+     *
+     * @return  int
+     */
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
     }
 
 }

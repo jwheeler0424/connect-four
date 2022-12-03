@@ -6,253 +6,192 @@
  * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu>
  */
 
+import { Game } from './Game.js'
 import { Player } from "./Player.js";
-import { navigate, loginUser } from "./Actions.js";
+import { loginUser, registerUser } from "./Actions.js";
 
-export const loginPage = () => {
-    const appRoot = document.getElementById('app');
-    let header, section, label, input;
+export const login_player = () => {
+    let loginForm = document.getElementById('login-form'),
+        message = document.getElementById('error-msg');
     
-    // Clear page html
-    appRoot.innerHTML = '';
-
-    // Create page header
-    header = document.createElement('header');
-    header.innerHTML = `<h2>Login User</h2>`;
-
-    // Create page display section
-    section = document.createElement('section');
-    section.setAttribute('class', 'login');
-
-    // Create menu button
-    let menuBtn = document.createElement('button');
-    menuBtn.setAttribute('id', 'menu-btn');
-    menuBtn.innerText = 'Main Menu';
-    menuBtn.addEventListener('click', e => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        navigate('menu');
+        let response = await loginUser(e.target);
+        
+        if (response === 'failed') {
+            message.innerText = 'Incorrect username and/or password.'
+            loginForm.reset();
+        } else {
+            window.location = '../';
+        }
     });
-
-    header.appendChild(menuBtn);
-
-    // Create login form
-    const loginForm = document.createElement('form');
-    loginForm.setAttribute('id', 'login-form');
-
-    // Create username fieldset
-    const usernameField = document.createElement('fieldset');
-    label = document.createElement('label');
-    label.setAttribute('for', 'username');
-    label.innerText = 'Username';
-
-    input = document.createElement('input');
-    input.setAttribute('type', 'text');
-    input.setAttribute('id', 'username');
-    input.setAttribute('name', 'username');
-    input.setAttribute('required', true);
-
-    usernameField.append(label, input);
-
-    // Create password fieldset
-    const passwordField = document.createElement('fieldset');
-    label = document.createElement('label');
-    label.setAttribute('for', 'password');
-    label.innerText = 'Password';
-
-    input = document.createElement('input');
-    input.setAttribute('type', 'password');
-    input.setAttribute('id', 'password');
-    input.setAttribute('name', 'password');
-    input.setAttribute('required', true);
-
-    passwordField.append(label, input);
-
-    const submitBtn = document.createElement('button');
-    submitBtn.setAttribute('type', 'submit');
-    submitBtn.innerText = 'Login';
-
-    loginForm.append(usernameField, passwordField, submitBtn);
-    loginForm.addEventListener('submit', loginUser);
-
-    section.append(loginForm);
-    
-    appRoot.append(header, section);
 }
 
-export const registerPage = () => {
-    const appRoot = document.getElementById('app');
-    let header, section;
-    
-    // Clear page html
-    appRoot.innerHTML = '';
+export const register_player = () => {
+    let registerForm = document.getElementById('register-form'),
+    message = document.getElementById('error-msg');
 
-    // Create page header
-    header = document.createElement('header');
-    header.innerHTML = `<h2>Register User</h2>`;
-
-    // Create page display section
-    section = document.createElement('section');
-    section.setAttribute('class', 'register');
-
-    // Create menu button
-    let menuBtn = document.createElement('button');
-    menuBtn.setAttribute('id', 'menu-btn');
-    menuBtn.innerText = 'Main Menu';
-    menuBtn.addEventListener('click', e => {
+    registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        navigate('menu');
+        let response = await registerUser(e.target);
+        
+        if (response === 'failed') {
+            message.innerText = 'An error occured with registering user.'
+            registerForm.reset();
+        } else {
+            window.location = '../';
+        }
     });
-
-    header.appendChild(menuBtn);
-    
-    appRoot.appendChild(header);
-    appRoot.appendChild(section);
 }
 
-export const gamePage = () => {
-    const appRoot = document.getElementById('app');
-    let header, section;
+export const game_menu = async () => {
+    const player = await new Player().getPlayer();
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.style.display = 'none';
+    const gameMenu = document.getElementById('game-menu');
+    gameMenu.style.display = 'block';
+    let header = document.querySelector('#app > header');
     
-    // Clear page html
-    appRoot.innerHTML = '';
+    header.innerHTML = `<h2>Game Menu</h2>`;
 
-    // Create page header
-    header = document.createElement('header');
-    header.innerHTML = `<h2>Game</h2>`;
+    let welcomeMessage = document.getElementById('welcome-msg');
+    welcomeMessage.innerText = `Make a selection.`;
 
-    // Create page display section
-    section = document.createElement('section');
-    section.setAttribute('class', 'game');
+    // Select menu buttons
+    let startLink = document.getElementById('start-link'), 
+        startLargeLink = document.getElementById('start-large-link'), 
+        leaderLink = document.getElementById('leader-link');
 
-    // Create menu button
-    let menuBtn = document.createElement('button');
-    menuBtn.setAttribute('id', 'menu-btn');
-    menuBtn.innerText = 'Main Menu';
-    menuBtn.addEventListener('click', e => {
+    startLink.addEventListener('click', e => {
         e.preventDefault();
-        navigate('menu');
+        game_board('regular');
     });
 
-    header.appendChild(menuBtn);
-    
-    appRoot.appendChild(header);
-    appRoot.appendChild(section);
+    startLargeLink.addEventListener('click', e => {
+        e.preventDefault();
+        game_board('large');
+    });
 }
 
-export const leaderboardPage = () => {
-    const appRoot = document.getElementById('app');
-    let header, section;
+export const game_board = async (size = 'regular') => {
+    const player = await new Player().getPlayer();
+
+    const gameMenu = document.getElementById('game-menu');
+    gameMenu.style.display = 'none';
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.style.display = 'block';
+
+    let header = document.querySelector('#app > header'), 
+        game = new Game(size);
     
-    // Clear page html
-    appRoot.innerHTML = '';
-
     // Create page header
-    header = document.createElement('header');
-    header.innerHTML = `<h2>Leaderboard</h2>`;
+    header.innerHTML = `
+        <h3 id="player1">${player.loggedIn ? player.username : 'Player 1'}</h3>
+        <h2 id="timer"></h2>
+        <h3 id="player2">Player 2</h3>
+        <nav>
+            <button id="reset-btn">Reset Game</button>
+            <button id="quit-btn">Quit Game</button>
+            <button id="super-btn">Super-Flip</button>
+        </nav>
+    `;
 
-    // Create page display section
-    section = document.createElement('section');
-    section.setAttribute('class', 'leaderboard');
-
-    // Create menu button
-    let menuBtn = document.createElement('button');
-    menuBtn.setAttribute('id', 'menu-btn');
-    menuBtn.innerText = 'Main Menu';
-    menuBtn.addEventListener('click', e => {
+    // Select quit button
+    let quitBtn = document.getElementById('quit-btn');
+    quitBtn.addEventListener('click', e => {
         e.preventDefault();
-        navigate('menu');
+        game.end();
+        game_menu();
     });
 
-    header.appendChild(menuBtn);
+    // Select reset button
+    let resetBtn = document.getElementById('reset-btn');
+    resetBtn.addEventListener('click', e => {
+        e.preventDefault();
+        game.end();
+        game_board(size);
+    });
+
+    // Select superflip button
+    let superBtn = document.getElementById('super-btn');
+    superBtn.addEventListener('click', e => {
+        e.preventDefault();
+        game.superflip();
+    });
     
-    appRoot.appendChild(header);
-    appRoot.appendChild(section);
+    game.drawBoard();
+    game.start();
 }
 
-export const menuPage = () => {
-    const appRoot = document.getElementById('app');
-    const player = Player.getPlayer;
-    let header, section;
+export const leader_board = () => {
+    const leaderBoard = document.getElementById('leader-board');
+}
+
+const main_menu = async () => {
+    const player = await new Player().getPlayer();
+    const welcome = document.getElementById('welcome-msg');
     
-    // Clear page html
-    appRoot.innerHTML = '';
-
-    // Create page header
-    header = document.createElement('header');
-    header.innerHTML = `<h2>Main Menu</h2>`;
-
-    // Create page display section
-    section = document.createElement('section');
-    section.setAttribute('class', 'menu');
-
-    let welcomeMessage = document.createElement('p');
-    welcomeMessage.innerText = `Welcome ${player ? player.username : 'Guest'}, please select an option.`;
-
-    // Create menu buttons
-    let loginBtn, logoutBtn, registerBtn, playBtn, playGuestBtn, leaderBtn;
-    loginBtn = document.createElement('button');
-    loginBtn.setAttribute('id', 'login-btn');
-    loginBtn.innerText = 'Login';
-    loginBtn.addEventListener('click', e => {
+    // Select menu buttons
+    let loginLink = document.getElementById('login-link'), 
+        logoutLink = document.getElementById('logout-link'), 
+        registerLink = document.getElementById('register-link'), 
+        playLink = document.getElementById('play-link'), 
+        playGuestLink = document.getElementById('play-guest-link'), 
+        leaderLink = document.getElementById('leader-link');
+    
+    logoutLink.addEventListener('click', e => {
         e.preventDefault();
-        navigate('login');
-    });
+        const url = e.target.href;
 
-    logoutBtn = document.createElement('button');
-    logoutBtn.setAttribute('id', 'logout-btn');
-    logoutBtn.innerText = 'Logout';
-    logoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        logoutUser();
-        navigate('menu');
-    });
+        player.logout();
+        window.location = url;
+    })
 
-    registerBtn = document.createElement('button');
-    registerBtn.setAttribute('id', 'register-btn');
-    registerBtn.innerText = 'Register';
-    registerBtn.addEventListener('click', e => {
-        e.preventDefault();
-        navigate('register');
-    });
-
-    playBtn = document.createElement('button');
-    playBtn.setAttribute('id', 'play-btn');
-    playBtn.innerText = 'Play Now';
-    playBtn.addEventListener('click', e => {
-        e.preventDefault();
-        navigate('game');
-    });
-
-    playGuestBtn = document.createElement('button');
-    playGuestBtn.setAttribute('id', 'play-guest-btn');
-    playGuestBtn.innerText = 'Play as Guest';
-    playGuestBtn.addEventListener('click', e => {
-        e.preventDefault();
-        navigate('game');
-    });
-
-    leaderBtn = document.createElement('button');
-    leaderBtn.setAttribute('id', 'leaderboard-btn');
-    leaderBtn.innerText = 'Leaderboard';
-    leaderBtn.addEventListener('click', e => {
-        e.preventDefault();
-        navigate('leaderboard');
-    });
-
-    section.innerHTML = '';
-    section.appendChild(welcomeMessage);
-
-    if (player) {
-        section.appendChild(playBtn);
-        section.appendChild(leaderBtn);
-        section.appendChild(logoutBtn);
+    if (player.loggedIn) {
+        welcome.innerText = `Welcome, ${player.name}. Please select an option.`;
+        loginLink.style.display = 'none';  
+        registerLink.style.display = 'none'; 
+        playGuestLink.style.display = 'none';  
+        playLink.style.display = 'block';  
+        leaderLink.style.display = 'block';  
+        logoutLink.style.display = 'block';
     } else {
-        section.appendChild(loginBtn);
-        section.appendChild(registerBtn);
-        section.appendChild(playGuestBtn);
-        section.appendChild(leaderBtn);
+        welcome.innerText = `Welcome, Guest. Please select an option.`;
+        logoutLink.style.display = 'none';  
+        playLink.style.display = 'none'; 
+        loginLink.style.display = 'block';
+        registerLink.style.display = 'block'; 
+        playGuestLink.style.display = 'block';  
+        leaderLink.style.display = 'block';
     }
 
-    appRoot.appendChild(header);
-    appRoot.appendChild(section);
+}
+
+export const loadPages = () =>
+{
+    let mainMenu = document.getElementById('main-menu'),
+        gameMenu = document.getElementById('game-menu'),
+        loginPlayer = document.getElementById('login-player'),
+        registerPlayer = document.getElementById('register-player'),
+        leaderBoard = document.getElementById('leader-board');
+
+    if (mainMenu) {
+        main_menu();
+    }
+
+    if (gameMenu) {
+        game_menu();
+    }
+
+    if (loginPlayer) {
+        login_player();
+    }
+
+    if (registerPlayer) {
+        register_player();
+    }
+
+    if (leaderBoard) {
+        leader_board();
+    }
 }

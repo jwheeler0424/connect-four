@@ -4,38 +4,37 @@
  * --------------------------------------------------------------------------------
  * 
  */
+import { postRequest } from "./request.js";
+
 export class Player
 {
-    constructor()
+    constructor(username = 'guest', name = 'Guest')
     {
-
+        this.username = username;
+        this.name = name;
+        this.loggedIn = false;
     }
 
     /**
      * A player method that takes the login form element and submits the data
-     * to login.php via AJAX. If successful will set player username and id.
+     * to api.php via AJAX. If successful will set player username and id.
      * 
      * Necessary Form Elements:
      *  - username
      *  - password
      * 
-     * @param username  The login form username element
-     * @param password  The login form password element
+     * @param data  The login form data
      */
-    login(username, password)
+    async login(data)
     {
-        const request = new XMLHttpRequest();
-        let formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
-        
-        request.open('post', './server/login.php');
-        request.send(formData);
-        
-        request.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                console.log(JSON.parse(this.response))
-            }
+        const response = await postRequest("../server/api.php", data);
+        if (response.status === 'success') {
+            this.id = response.player.id
+            this.username = response.player.username;
+            this.name = response.player.name;
+            this.loggedIn = true;
+        } else {
+            this.loggedIn = false;
         }
     }
 
@@ -50,23 +49,49 @@ export class Player
      * 
      * @param form  The register form element
      */
-    register(form)
+    async register(data)
     {
-        const request = new XMLHttpRequest();
-        let formData = new FormData(form);
+        const response = await postRequest("../server/api.php", data);
         
-        request.open('post', './server/register.php');
-        request.send(formData);
-        
-        request.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                console.log(this.responseText)
-            }
+        if (response.status === 'success') {
+            this.id = response.player.id
+            this.username = response.player.username;
+            this.name = response.player.name;
+            this.loggedIn = true;
+        } else {
+            this.loggedIn = false;
         }
     }
 
-    getPlayer()
+    async logout()
     {
-        return false;
+        const data = new FormData();
+        data.append('api', 'logoutUser');
+
+        const response = await postRequest("../server/api.php", data);
+        if (response.status === 'success') {
+            this.id = undefined
+            this.username = 'guest';
+            this.name = 'Guest';
+            this.loggedIn = false;
+        }
+        
+        return this;
+    }
+
+    async getPlayer()
+    {
+        const data = new FormData();
+        data.append('api', 'getPlayer');
+
+        const response = await postRequest("../server/api.php", data);
+        if (response.status === 'success') {
+            this.id = response.player.id
+            this.username = response.player.username;
+            this.name = response.player.name;
+            this.loggedIn = true;
+        }
+        
+        return this;
     }
 }

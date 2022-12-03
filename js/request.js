@@ -11,6 +11,7 @@ export const postRequest = (url, data) => new Promise((resolve, reject) => {
     
     request.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+            // console.log(this.responseText)
             resolve(JSON.parse(this.responseText))
         } else if (this.readyState === 4) {
             reject("An error occured while sending this request.")

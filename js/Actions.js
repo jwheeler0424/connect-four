@@ -5,22 +5,42 @@
  * 
  * @author Jonathan Wheeler <jwheeler0424@mail.fresnostate.edu>
  */
-import { handleDisplay } from "./Display.js";
-import { postRequest } from "./request.js";
+import { Player } from "./Player.js";
 
-export const navigate = ( page = 'menu' ) => {
-    handleDisplay(page);
+export const loginUser = async (loginForm) => {
+    let player = await new Player().getPlayer();
+    
+    if (!player.loggedIn) {
+        const data = new FormData(loginForm);
+        data.append('api', 'loginUser');
+        
+        await player.login(data);
+
+        if (!player.loggedIn) {
+            return 'failed';
+        } else {
+            return 'success'
+        }
+    } else  {
+        window.location.href('../');
+    }
 }
 
-export const loginUser = async (e) => {
-    e.preventDefault();
-    const loginForm = e.target;
-    const data = new FormData(loginForm);
-    
-    const response = await postRequest("../server/login.php", data);
-    if (response.status === 'success') {
-        console.log(response);
-    } else {
-        console.log(response);
+export const registerUser = async (registerForm) => {
+    let player = await new Player().getPlayer();
+
+    if (!player.loggedIn) {
+        const data = new FormData(registerForm);
+        data.append('api', 'registerUser');
+
+        await player.register(data);
+        
+        if (!player.loggedIn) {
+            return 'failed';
+        } else {
+            return 'success';
+        }
+    } else  {
+        window.location.href('../');
     }
 }

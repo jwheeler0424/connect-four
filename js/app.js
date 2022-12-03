@@ -14,28 +14,13 @@
  */
 
 import { checkInstall } from "./install.js";
-import { handleDisplay } from "./Display.js";
+import { loadPages } from "./Pages.js";
 
 let installed = localStorage.getItem('installed');
-let display = localStorage.getItem('display') ?? 'menu';
 
 if (!installed) {
     installed = await checkInstall;
     localStorage.setItem('installed', installed);
 }
 
-handleDisplay(display);
-
-// import { Game } from './Game.js'
-// import { Player } from './Player.js'
-
-// let game = new Game('large')
-// let player1 = new Player()
-// let player2 = new Player()
-
-// game.drawBoard();
-
-// let username = 'player';
-// let password = 'password';
-
-// player1.login(username, password)
+loadPages();

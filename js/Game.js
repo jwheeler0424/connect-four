@@ -23,24 +23,60 @@ export class Game
                 rows = 6;
                 cols = 7;
         }
-        this.rows = rows - 1;
-        this.cols = cols - 1;
-        this.currentPlayer = 1;
-        this.board = [];
-        for (let r = 0; r < rows; r++) {
-            this.board[r] = [];
-            for (let c = 0; c < cols; c++) {
-                this.board[r][c] = 0;
+        let savedGame = JSON.parse(localStorage.getItem('game'));
+        localStorage.setItem('superflip', JSON.stringify({
+            player1: true,
+            player2: true
+        }))
+        
+        if (savedGame) {
+            this.rows = savedGame.rows;
+            this.cols = savedGame.cols;
+            this.currentPlayer = savedGame.currentPlayer;
+            this.board = savedGame.board;
+        } else {
+            this.rows = rows - 1;
+            this.cols = cols - 1;
+            this.currentPlayer = 1;
+            this.board = [];
+            for (let r = 0; r < rows; r++) {
+                this.board[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    this.board[r][c] = 0;
+                }
             }
         }
     }
 
-    drawBoard()
+    drawBoard(state = 'playing')
     {
+        const player1title = document.getElementById('player1');
+        const player2title = document.getElementById('player2')
         const gameSpace = document.getElementById('game');
         const container = document.createElement('table');
         const board = document.createElement('tbody');
         gameSpace.innerHTML = '';
+
+        let superBtn = document.getElementById('super-btn');
+        let superflip;
+        
+        if (this.currentPlayer === 1) {
+            superflip = JSON.parse(localStorage.getItem('superflip')).player1;
+            player1title.classList.add('activePlayer');
+            player2title.classList.remove('activePlayer');
+        } else {
+            superflip = JSON.parse(localStorage.getItem('superflip')).player2;
+            player1title.classList.remove('activePlayer');
+            player2title.classList.add('activePlayer');
+        }
+
+        if (!superflip) {
+            superBtn.disabled = true;
+            superBtn.style.visibility = 'hidden';
+        } else  {
+            superBtn.disabled = false;
+            superBtn.style.visibility = 'visible'
+        }
 
         for (let r = 0; r <= this.rows; r++) {
             const tr = document.createElement('tr');
@@ -49,38 +85,64 @@ export class Game
                 td.setAttribute('id', `pos_${r}_${c}`)
                 td.setAttribute('data-col', c);
                 td.setAttribute('data-row', r)
-                td.innerHTML = this.board[r][c] !== 0 ? this.board[r][c] : '&nbsp';
+                td.innerHTML = this.board[r][c] !== 0 
+                    ? this.board[r][c].player === 1 
+                        ? `<div class="player1_piece">${this.board[r][c].currentMove}</div>`
+                        : `<div class="player2_piece">${this.board[r][c].currentMove}</div>` 
+                    : '';
                 tr.appendChild(td);
             }
             board.appendChild(tr);
         }
         container.appendChild(board)
         gameSpace.appendChild(container);
+        
+        if (state !== 'gameover') {
+            this.getHints(this.currentPlayer);
 
-        let cells = board.querySelectorAll('td');
+            let cells = board.querySelectorAll('td');
 
-        cells.forEach(cell => {
-            cell.addEventListener('click', e => {
-                let column = e.target.dataset.col;
-                this.setPiece(this.currentPlayer, column);
-                this.currentPlayer === 1 ? this.currentPlayer = 2 : this.currentPlayer = 1;
-                this.drawBoard();
-            })
-            cell.addEventListener('mouseover', e => {
-                let column = e.target.dataset.col;
-                let activeCells = document.querySelectorAll(`[data-col="${column}"]`);
-                activeCells.forEach(ac => {
-                    ac.classList.add('activeColumn')
+            cells.forEach(cell => {
+                cell.addEventListener('click', e => {
+                    let column = parseInt(e.target.dataset.col);
+                    let win = this.setPiece(this.currentPlayer, column);
+                    
+                    if (win) {
+                        localStorage.setItem('win', JSON.stringify(win));
+                        clearInterval(this.interval);
+                        this.drawBoard('gameover');
+                    } else {
+                        this.currentPlayer === 1 ? this.currentPlayer = 2 : this.currentPlayer = 1;
+                        this.drawBoard();
+                    }
+
+                    
+                })
+                cell.addEventListener('mouseover', e => {
+                    let column = e.target.dataset.col;
+                    let activeCells = document.querySelectorAll(`[data-col="${column}"]`);
+                    activeCells.forEach(ac => {
+                        ac.classList.add('activeColumn')
+                    })
+                })
+                cell.addEventListener('mouseout', e => {
+                    let column = e.target.dataset.col;
+                    let activeCells = document.querySelectorAll(`[data-col="${column}"]`);
+                    activeCells.forEach(ac => {
+                        ac.classList.remove('activeColumn')
+                    })
                 })
             })
-            cell.addEventListener('mouseout', e => {
-                let column = e.target.dataset.col;
-                let activeCells = document.querySelectorAll(`[data-col="${column}"]`);
-                activeCells.forEach(ac => {
-                    ac.classList.remove('activeColumn')
-                })
+        } else {
+            let win = JSON.parse(localStorage.getItem('win'));
+            win.forEach(cell => {
+                let r = cell[0], c = cell[1];
+                let winCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                winCell.classList.add('activeWin');
             })
-        })
+            
+        }
+        
     }
 
     setPiece(player, col)
@@ -89,11 +151,108 @@ export class Game
         while (this.board[row][col] !== 0) {
             row --;
         }
-        this.board[row][col] = player;
-        let hint = this.connectThree(player, row, col);
-        let win = this.connectFour(player, row, col);
+        this.board[row][col] = {
+            player,
+            currentMove: this.getPlayerMoves(player) + 1
+        };
 
-        // if (hint) console.log(player, hint);
+        return this.connectFour(this.currentPlayer, row, col);
+    }
+
+    getHints()
+    {
+        let connect3 = this.getMatchMoves();
+
+        // Get horizontal hints
+        this.getHorizontalHints(connect3);
+
+        // Get vertical hints
+        this.getVerticalHints(connect3);
+
+        // Set forward diagonal hints
+        this.getDiagForwardHints(connect3);
+
+        // Set backward diagonal hints
+        this.getDiagBackwardHints(connect3);
+    }
+
+    getPlayerMoves(player)
+    {
+        let playerMoves = [];
+        this.board.forEach((row, r) => {
+            row.forEach((column, c) => {
+                if (player === this.board[r][c].player) playerMoves.push([r,c])
+            })
+        })
+
+        return playerMoves.length;
+    }
+
+    getMatchMoves()
+    {
+        let playerMoves = [];
+        let connect3 = {
+            vertical: [],
+            horizontal: [],
+            diagForward: [],
+            diagBackward: []
+        };
+        this.board.forEach((row, r) => {
+            row.forEach((column, c) => {
+                if (this.currentPlayer === this.board[r][c].player) playerMoves.push([r,c])
+            })
+        })
+        
+        playerMoves.forEach(move => {
+            let match = this.connectThree(this.currentPlayer, move[0], move[1]);
+            if (match) {
+                if (match.vertical) {
+                    if (connect3.vertical.length <= 0) {
+                        connect3.vertical.push(match.vertical);
+                    } else {
+                        connect3.vertical.forEach(array => {
+                            let test = array.length === match.vertical.length && array.every((value, index) => value === match.vertical[index]);
+                            if (test) connect3.vertical.push(match.vertical);
+                        });
+                    }
+                }
+
+                if (match.horizontal) {
+                    if (connect3.horizontal.length <= 0) {
+                        connect3.horizontal.push(match.horizontal);
+                    } else {
+                        connect3.horizontal.forEach(array => {
+                            let test = array.length === match.horizontal.length && array.every((value, index) => value === match.horizontal[index]);
+                            if (test) connect3.horizontal.push(match.horizontal);
+                        });
+                    }
+                }
+
+                if (match.diagForward) {
+                    if (connect3.diagForward.length <= 0) {
+                        connect3.diagForward.push(match.diagForward);
+                    } else {
+                        connect3.diagForward.forEach(array => {
+                            let test = array.length === match.diagForward.length && array.every((value, index) => value === match.diagForward[index]);
+                            if (test) connect3.diagForward.push(match.diagForward);
+                        });
+                    }
+                }
+
+                if (match.diagBackward) {
+                    if (connect3.diagBackward.length <= 0) {
+                        connect3.diagBackward.push(match.diagBackward);
+                    } else {
+                        connect3.diagBackward.forEach(array => {
+                            let test = array.length === match.diagBackward.length && array.every((value, index) => value === match.diagBackward[index]);
+                            if (test) connect3.diagBackward.push(match.diagBackward);
+                        });
+                    }
+                }
+            } 
+        });
+
+        return connect3;
     }
 
     flipBoardX()
@@ -106,7 +265,7 @@ export class Game
                 row --;
             }
             while (tempAr.length > 0) {
-                this.setPiece(tempAr.pop(), c)
+                this.setPiece(tempAr.pop().player, c)
             }
         }
     }
@@ -122,37 +281,57 @@ export class Game
         }
     }
 
+    superflip()
+    {
+        this.flipBoardX();
+        let superflip = JSON.parse(localStorage.getItem('superflip'));
+        this.currentPlayer === 1 ? superflip.player1 = false : superflip.player2 = false;
+        localStorage.setItem('superflip', JSON.stringify(superflip));
+        this.drawBoard();
+    }
+
     connectThree(player, row, col)
     {
+        let connect3 = {
+            vertical: null,
+            horizontal: null,
+            diagForward: null,
+            diagBackward: null
+        };
+
         // check vertical space
         let vertical = this.checkVertical(player, row, col);
         if (vertical.length === 3) {
-            return vertical
+            connect3.vertical = vertical.sort();
         }
 
         // check horizontal space
         let horizontal = this.checkHorizontal(player, row, col);
         if (horizontal.length === 3) {
-            return horizontal
+            connect3.horizontal = horizontal.sort();
         }
 
         // check forward diagonal
         let diagForward = this.checkDiagForward(player, row, col);
         if (diagForward.length === 3) {
-            return diagForward
+            connect3.diagForward = diagForward.sort();
         }
 
         // check backward diagonal
         let diagBackward = this.checkDiagBackward(player, row, col);
         if (diagBackward.length === 3) {
-            return diagBackward
+            connect3.diagBackward = diagBackward.sort();
         }
         
+        if (connect3.vertical || connect3.horizontal || connect3.diagForward || connect3.diagBackward){
+            return connect3;
+        }
         return false;
     }
 
     connectFour(player, row, col)
     {
+        
         // check vertical space
         let vertical = this.checkVertical(player, row, col);
         if (vertical.length === 4) {
@@ -186,7 +365,7 @@ export class Game
         let maxHeight = this.rows;
         
         while (row <= maxHeight) {
-            if (this.board[row][col] === player) {
+            if (this.board[row][col] !== 0 && this.board[row][col].player === player) {
                 connected.push([row, col]);
             } else {
                 break;
@@ -197,6 +376,26 @@ export class Game
         return connected;
     }
 
+    getVerticalHints(connect3)
+    {
+        if (connect3.vertical.length >= 1) {
+            connect3.vertical.forEach(match => {
+                let front = match[0], back = match[2], r, c;
+
+                // Check if left space exists and is empty
+                if (
+                    this.board[front[0] - 1][front[1]] !== undefined 
+                    && this.board[front[0] - 1][front[1]] === 0
+                ) {
+                    r = front[0] - 1;
+                    c = front[1];
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+            })
+        }
+    }
+
     checkHorizontal(player, row, col)
     {
         let connected = [];
@@ -205,7 +404,7 @@ export class Game
 
         let tempCol = col - 1;
         while (tempCol >= 0) {
-            if (this.board[row][tempCol] === player) {
+            if (this.board[row][tempCol] && this.board[row][tempCol].player === player) {
                 connected.push([row, tempCol]);
             } else {
                 break;
@@ -215,7 +414,7 @@ export class Game
 
         tempCol = col + 1;
         while (tempCol <= maxWidth) {
-            if (this.board[row][tempCol] === player) {
+            if (this.board[row][tempCol] && this.board[row][tempCol].player === player) {
                 connected.push([row, tempCol]);
             } else {
                 break;
@@ -224,6 +423,42 @@ export class Game
         }
 
         return connected;
+    }
+
+    getHorizontalHints(connect3)
+    {
+        if (connect3.horizontal.length >= 1) {
+            connect3.horizontal.forEach(match => {
+                let front = match[0], back = match[2], r, c;
+
+                // Check if left space exists and is empty
+                if (
+                    this.board[front[0]][front[1] - 1] !== undefined 
+                    && this.board[front[0]][front[1] - 1] === 0
+                    && (this.board[front[0] + 1] === undefined
+                    || this.board[front[0] + 1][front[1] - 1] !== 0)
+                ) {
+                    r = front[0];
+                    c = front[1] - 1;
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+
+                // Check if right space exists and is empty
+                if (
+                    this.board[back[0]][back[1] + 1] !== undefined 
+                    && this.board[back[0]][back[1] + 1] === 0
+                    && (this.board[back[0] + 1] === undefined
+                    || this.board[back[0] + 1][back[1] + 1] === undefined
+                    || this.board[back[0] + 1][back[1] + 1] !== 0)
+                ) {
+                    r = back[0];
+                    c = back[1] + 1;
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+            })
+        }
     }
 
     checkDiagForward(player, row, col)
@@ -236,7 +471,7 @@ export class Game
         let tempCol = col - 1;
         let tempRow = row + 1;
         while (tempCol >= 0 && tempRow <= maxHeight) {
-            if (this.board[tempRow][tempCol] === player) {
+            if (this.board[tempRow][tempCol] && this.board[tempRow][tempCol].player === player) {
                 connected.push([tempRow, tempCol]);
             } else {
                 break;
@@ -248,7 +483,7 @@ export class Game
         tempCol = col + 1;
         tempRow = row - 1;
         while (tempCol <= maxWidth && tempRow >= 0) {
-            if (this.board[tempRow][tempCol] === player) {
+            if (this.board[tempRow][tempCol] && this.board[tempRow][tempCol].player === player) {
                 connected.push([tempRow, tempCol]);
             } else {
                 break;
@@ -260,17 +495,50 @@ export class Game
         return connected;
     }
 
+    getDiagForwardHints(connect3)
+    {
+        if (connect3.diagForward.length >= 1) {
+            connect3.diagForward.forEach(match => {
+                let front = match[0], back = match[2], r, c;
+
+                // Check if top right space exists and is empty
+                if (
+                    this.board[front[0] - 1] !== undefined
+                    && this.board[front[0] - 1][front[1] + 1] !== undefined 
+                    && this.board[front[0] - 1][front[1] + 1] === 0
+                    && this.board[front[0]][front[1] + 1] !== 0
+                ) {
+                    r = front[0] - 1;
+                    c = front[1] + 1;
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+                // Check if bottom left space exists and is empty
+                if (
+                    this.board[back[0] + 1] !== undefined 
+                    && this.board[back[0] + 1][back[1] - 1] !== undefined 
+                    && this.board[back[0] + 1][back[1] - 1] === 0
+                ) {
+                    r = back[0] + 1;
+                    c = back[1] - 1;
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+            })
+        }
+    }
+
     checkDiagBackward(player, row, col)
     {
         let connected = [];
         let maxHeight = this.rows;
         let maxWidth = this.cols;
         connected.push([row, col]);
-
+        
         let tempCol = col - 1;
         let tempRow = row - 1;
         while (tempCol >= 0 && tempRow >= 0) {
-            if (this.board[tempRow][tempCol] === player) {
+            if (this.board[tempRow][tempCol] && this.board[tempRow][tempCol].player === player) {
                 connected.push([tempRow, tempCol]);
             } else {
                 break;
@@ -282,7 +550,7 @@ export class Game
         tempCol = col + 1;
         tempRow = row + 1;
         while (tempCol <= maxWidth && tempRow <= maxHeight) {
-            if (this.board[tempRow][tempCol] === player) {
+            if (this.board[tempRow][tempCol] && this.board[tempRow][tempCol].player === player) {
                 connected.push([tempRow, tempCol]);
             } else {
                 break;
@@ -292,5 +560,71 @@ export class Game
         }
         
         return connected;
+    }
+
+    getDiagBackwardHints(connect3)
+    {
+        if (connect3.diagBackward.length >= 1) {
+            connect3.diagBackward.forEach(match => {
+                let front = match[0], back = match[2], r, c;
+                
+                // Check if top left space exists and is empty
+                if (
+                    this.board[front[0] - 1] !== undefined 
+                    && this.board[front[0] - 1][front[1] - 1] !== undefined
+                    && this.board[front[0] - 1][front[1] - 1] === 0
+                    && (this.board[front[0]][front[1] - 1] === undefined 
+                    || this.board[front[0]][front[1] - 1] !== 0)
+                ) {
+                    r = front[0] - 1;
+                    c = front[1] - 1;
+                    
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+                
+                // Check if bottom right space exists and is empty
+                if (
+                    this.board[back[0] + 1] !== undefined
+                    && this.board[back[0] + 1][back[1] + 1] !== undefined 
+                    && this.board[back[0] + 1][back[1] + 1] === 0
+                    && (this.board[back[0] + 2] === undefined 
+                    || this.board[back[0] + 2][back[1] + 1] === undefined
+                    || this.board[back[0] + 2][frobacknt[1] + 1] !== 0)
+                ) {
+                    r = back[0] + 1;
+                    c = back[1] + 1;
+                    let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    hintCell.classList.add('activeHint');
+                }
+            })
+        }
+    }
+
+    start()
+    {
+        const timerContainer = document.getElementById('timer');
+        let savedGame = JSON.parse(localStorage.getItem('game'));
+        this.startTime = savedGame ? new Date(savedGame.startTime) : new Date();
+        this.currentTime = new Date();
+        this.gameTime = new Date(this.currentTime.getTime() - this.startTime.getTime());
+        if (!savedGame) localStorage.setItem('game', JSON.stringify(this));
+        timerContainer.innerText = `${this.gameTime.getMinutes().toString().padStart(2, '0')}:${this.gameTime.getSeconds().toString().padStart(2, '0')}`;
+        this.interval = setInterval(() => {
+            this.currentTime = new Date();
+            this.gameTime = new Date(this.currentTime.getTime() - this.startTime.getTime());
+            localStorage.setItem('game', JSON.stringify(this));
+            timerContainer.innerText = `${this.gameTime.getMinutes().toString().padStart(2, '0')}:${this.gameTime.getSeconds().toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    end()
+    {
+        this.startTime = 0;
+        this.currentTime = 0;
+        this.gameTime = 0;
+        localStorage.removeItem('game');
+        localStorage.removeItem('superflip')
+        clearInterval(this.interval);
     }
 }

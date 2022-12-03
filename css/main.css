@@ -12,3 +12,30 @@ td {
 td.activeColumn {
     border-color: blue;
 }
+
+td.activeHint {
+    border: solid 2px red;
+}
+
+td.activeWin {
+    border: solid 2px forestgreen;
+}
+
+.activePlayer {
+    color: forestgreen;
+    font-weight: bold;
+}
+
+div.player1_piece {
+    background-color: blue;
+    border-radius: 100%;
+    height: 100%;
+    width: 100%;
+}
+
+div.player2_piece {
+    background-color: red;
+    border-radius: 100%;
+    height: 100%;
+    width: 100%;
+}

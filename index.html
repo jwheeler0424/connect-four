@@ -13,8 +13,32 @@
 <body>
     <header>
         <h1>Connect Four</h1>
+        <nav>
+            <ul role="navigation">
+                <li><a href="./">Main Menu</a></li>
+                <li><a href="./game.html">Play Game</a></li>
+                <li><a href="./leaderboard.html">Leaderboard</a></li>
+                <li><a href="./help.html">Help</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+            </ul>
+        </nav>
     </header>
-    <main id="app"></main>
+    <main id="app">
+        <header>
+            <h2>Main Menu</h2>
+        </header>
+        <section id="main-menu">
+            <p id="welcome-msg"></p>
+            <nav id="menu">
+                <a href="./login.html" id="login-link">Login</a>
+                <a href="./register.html" id="register-link">Register</a>
+                <a href="./game.html" id="play-link">Play Now</a>
+                <a href="./game.html" id="play-guest-link">Play as Guest</a>
+                <a href="./leaderboard.html" id="leader-link">Leaderboard</a>
+                <a href="./" id="logout-link">Logout</a>
+            </nav>
+        </section>
+    </main>
     <script src="js/app.js" type="module"></script>
 </body>
 </html>
