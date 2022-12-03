@@ -9,11 +9,20 @@
     <meta name="keywords" content="Connect Four, HTML, CSS, JavaScript, PHP, MySQL">
     <meta name="author" content="Aakash Sharma, Jonathan Wheeler">
     <link rel="stylesheet" href="./css/main.css">
+
+    <!-- fonts api -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style> @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); </style>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');</style>    
+    
+
 </head>
 <body>
-    <header>
+    <header id = "connect-four">
+        
         <h1>Connect Four</h1>
         <nav>
+            
             <ul role="navigation">
                 <li><a href="./">Main Menu</a></li>
                 <li><a href="./game.html">Play Game</a></li>
@@ -29,10 +38,10 @@
         </header>
         <section id="game-menu">
             <p id="welcome-msg"></p>
-            <nav id="menu">
-                <a href="./game.html" id="start-link">Start Game</a>
-                <a href="./game.html" id="start-large-link">Start Large Game</a>
-                <a href="./leaderboard.html" id="leader-link">Leaderboard</a>
+            <nav id="menu" >
+                <a class="menu-item" href="./game.html" id="start-link">Start Game</a></li>
+                <a class="menu-item" href="./game.html" id="start-large-link">Start Large Game</a></li>
+                <a class="menu-item" href="./leaderboard.html" id="leader-link">Leaderboard</a></li>
             </nav>
         </section>
         <section id="game-board">
