@@ -9,19 +9,33 @@ td {
     width: 50px;
 }
 
-td.activeColumn {
-    border-color: blue;
+.activeColumn {
+    border-color: coral;
 }
 
-td.activeHint {
+.activeHint1 {
+    border: solid 2px blue;
+}
+
+.activeHint2 {
     border: solid 2px red;
 }
 
-td.activeWin {
+.activeWin {
     border: solid 2px forestgreen;
 }
 
-.activePlayer {
+.activePlayer1 {
+    color: blue;
+    font-weight: bold;
+}
+
+.activePlayer2 {
+    color: red;
+    font-weight: bold;
+}
+
+.activeWinner {
     color: forestgreen;
     font-weight: bold;
 }

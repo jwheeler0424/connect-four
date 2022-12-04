@@ -26,9 +26,17 @@
     <main id="app">
         <header>
             <h2>Leaderboard</h2>
+            <select id="select-leaders">
+                <option value="most-wins" selected>Most Wins</option>
+                <option value="fastest-games">Fastest Games</option>
+                <option value="least-moves">Least Moves</option>
+            </select>
         </header>
         <section id="leader-board">
-            
+            <table id="board">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
         </section>
     </main>
     <script src="js/app.js" type="module"></script>

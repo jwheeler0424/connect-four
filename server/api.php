@@ -11,6 +11,7 @@
 
 include_once 'Database.php';
 include_once 'Player.php';
+include_once 'Game.php';
 
 // Start the session
 session_start();
@@ -111,8 +112,67 @@ switch($method)
         ]);
         break;
     case 'addGameData':
+        $user_id = $_POST['user_id'];
+        $win = $_POST['win'] === 'true' ? true : false;
+        $time = intval($_POST['time']);
+        $moves = intval($_POST['moves']);
+
+        $game = new Game($user_id, $win, $time, $moves);
+        $game->create();
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Game has been successfully saved.',
+            'game' => $game
+        ]);
         break;
-    case 'getLeaderboard':
+    case 'getMostWins':
+        $games = Game::mostWins();
+        $leaders = [];
+        foreach($games as $game) {
+            $player = Player::findByID($game->user_id);
+            $leaders[] = [
+                'player' => $player->username,
+                'wins' => intval($game->wins)
+            ];
+        }
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Players ordered by most wins.',
+            'leaders' => $leaders
+        ]);
+        break;
+    case 'getFastestGames':
+        $games = Game::fastestGames();
+        $leaders = [];
+        foreach($games as $game) {
+            $player = Player::findByID($game->user_id);
+            $leaders[] = [
+                'player' => $player->username,
+                'time' => intval($game->time)
+            ];
+        }
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Players ordered by fastest win times.',
+            'leaders' => $leaders
+        ]);
+        break;
+    case 'getLeastMoves':
+        $games = Game::leastMoves();
+        $leaders = [];
+        foreach($games as $game) {
+            $player = Player::findByID($game->user_id);
+            $leaders[] = [
+                'player' => $player->username,
+                'moves' => intval($game->moves)
+            ];
+        }
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Players ordered by least win moves.',
+            'leaders' => $leaders
+        ]);
         break;
     default:
         echo json_encode([

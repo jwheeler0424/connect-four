@@ -9,8 +9,9 @@
 import { Game } from './Game.js'
 import { Player } from "./Player.js";
 import { loginUser, registerUser } from "./Actions.js";
+import { postRequest } from "./request.js";
 
-export const login_player = () => {
+const login_player = () => {
     let loginForm = document.getElementById('login-form'),
         message = document.getElementById('error-msg');
     
@@ -27,7 +28,7 @@ export const login_player = () => {
     });
 }
 
-export const register_player = () => {
+const register_player = () => {
     let registerForm = document.getElementById('register-form'),
     message = document.getElementById('error-msg');
 
@@ -44,7 +45,7 @@ export const register_player = () => {
     });
 }
 
-export const game_menu = async () => {
+const game_menu = async () => {
     const player = await new Player().getPlayer();
     const gameBoard = document.getElementById('game-board');
     gameBoard.style.display = 'none';
@@ -59,8 +60,7 @@ export const game_menu = async () => {
 
     // Select menu buttons
     let startLink = document.getElementById('start-link'), 
-        startLargeLink = document.getElementById('start-large-link'), 
-        leaderLink = document.getElementById('leader-link');
+        startLargeLink = document.getElementById('start-large-link');
 
     startLink.addEventListener('click', e => {
         e.preventDefault();
@@ -73,7 +73,7 @@ export const game_menu = async () => {
     });
 }
 
-export const game_board = async (size = 'regular') => {
+const game_board = async (size = 'regular') => {
     const player = await new Player().getPlayer();
 
     const gameMenu = document.getElementById('game-menu');
@@ -123,8 +123,166 @@ export const game_board = async (size = 'regular') => {
     game.start();
 }
 
-export const leader_board = () => {
-    const leaderBoard = document.getElementById('leader-board');
+const leader_board = async () => {
+    const selectLeaders = document.getElementById('select-leaders');
+    const leaderBoardHeader = document.querySelector('#board > thead');
+    const leaderBoardBody = document.querySelector('#board > tbody');
+
+    let data = new FormData(), response, leaders;
+    switch(selectLeaders.value)
+    {
+        case 'fastest-games':
+            data.append('api', 'getFastestGames');
+            response = await postRequest("../server/api.php", data);
+            leaders = response.leaders;
+            leaderBoardHeader.innerHTML = `
+                <tr>
+                    <th></th>
+                    <th>Player</th>
+                    <th>Time</th>
+                </tr>
+            `;
+
+            leaderBoardBody.innerHTML = '';
+            leaders.forEach((leader, place) => {
+                let time = new Date(leader.time);
+                leaderBoardBody.innerHTML += `
+                    <tr>
+                        <td>${place + 1}</td>
+                        <td>${leader.player}</td>
+                        <td>${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliSeconds().toString().padStart(3, '0')}</td>
+                    </tr>
+                `;
+            });
+            break;
+        case 'least-moves':
+            data.append('api', 'getLeastMoves');
+            response = await postRequest("../server/api.php", data);
+            leaders = response.leaders;
+            leaderBoardHeader.innerHTML = `
+                <tr>
+                    <th></th>
+                    <th>Player</th>
+                    <th>Moves</th>
+                </tr>
+            `;
+
+            leaderBoardBody.innerHTML = '';
+            leaders.forEach((leader, place) => {
+                leaderBoardBody.innerHTML += `
+                    <tr>
+                        <td>${place + 1}</td>
+                        <td>${leader.player}</td>
+                        <td>${leader.moves}</td>
+                    </tr>
+                `;
+            });
+            break;
+        default:
+            data.append('api', 'getMostWins');
+            response = await postRequest("../server/api.php", data);
+            leaders = response.leaders;
+            leaderBoardHeader.innerHTML = `
+                <tr>
+                    <th></th>
+                    <th>Player</th>
+                    <th>Wins</th>
+                </tr>
+            `;
+
+            leaderBoardBody.innerHTML = '';
+            leaders.forEach((leader, place) => {
+                leaderBoardBody.innerHTML += `
+                    <tr>
+                        <td>${place + 1}</td>
+                        <td>${leader.player}</td>
+                        <td>${leader.wins}</td>
+                    </tr>
+                `;
+            });
+    }
+    
+
+    selectLeaders.addEventListener('change', async (e) => {
+        e.preventDefault();
+        let data = new FormData();
+
+        switch(e.target.value)
+        {
+            case 'fastest-games':
+                data.append('api', 'getFastestGames');
+                response = await postRequest("../server/api.php", data);
+                leaders = response.leaders;
+                leaderBoardHeader.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Player</th>
+                        <th>Time</th>
+                    </tr>
+                `;
+
+                leaderBoardBody.innerHTML = '';
+                leaders.forEach((leader, place) => {
+                    let time = new Date(leader.time);
+                    leaderBoardBody.innerHTML += `
+                        <tr>
+                            <td>${place + 1}</td>
+                            <td>${leader.player}</td>
+                            <td>${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliseconds().toString().padStart(3, '0')}</td>
+                        </tr>
+                    `;
+                });
+                break;
+            case 'least-moves':
+                data.append('api', 'getLeastMoves');
+                response = await postRequest("../server/api.php", data);
+                leaders = response.leaders;
+                leaderBoardHeader.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Player</th>
+                        <th>Moves</th>
+                    </tr>
+                `;
+
+                leaderBoardBody.innerHTML = '';
+                leaders.forEach((leader, place) => {
+                    leaderBoardBody.innerHTML += `
+                        <tr>
+                            <td>${place + 1}</td>
+                            <td>${leader.player}</td>
+                            <td>${leader.moves}</td>
+                        </tr>
+                    `;
+                });
+                break;
+            default:
+                data.append('api', 'getMostWins');
+                response = await postRequest("../server/api.php", data);
+                leaders = response.leaders;
+                leaderBoardHeader.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Player</th>
+                        <th>Wins</th>
+                    </tr>
+                `;
+
+                leaderBoardBody.innerHTML = '';
+                leaders.forEach((leader, place) => {
+                    leaderBoardBody.innerHTML += `
+                        <tr>
+                            <td>${place + 1}</td>
+                            <td>${leader.player}</td>
+                            <td>${leader.wins}</td>
+                        </tr>
+                    `;
+                });
+        }
+        
+        
+        console.log(response)
+    })
 }
 
 const main_menu = async () => {

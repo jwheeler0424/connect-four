@@ -43,7 +43,8 @@ $sql = "CREATE TABLE IF NOT EXISTS `games`
     `id`        int PRIMARY KEY AUTO_INCREMENT NOT NULL ,
     `user_id`   int NOT NULL ,
     `win`       boolean NOT NULL ,
-    `time`      timestamp NOT NULL,
+    `time`      int NOT NULL ,
+    `moves`     int NOT NULL ,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );";
 
