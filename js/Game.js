@@ -182,7 +182,7 @@ export class Game
             data.append('time', gameTime);
             data.append('moves', playerMoves);
 
-            await postRequest("../server/api.php", data);
+            //await postRequest("../server/api.php", data);
             this.end();
         }
     }
