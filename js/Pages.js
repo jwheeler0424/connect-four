@@ -144,16 +144,21 @@ const leader_board = async () => {
             `;
 
             leaderBoardBody.innerHTML = '';
-            leaders.forEach((leader, place) => {
-                let time = new Date(leader.time);
+            for(let place = 0; place < 10; place++) {
+                let leader = leaders[place] ?? {
+                    player: '',
+                    time: null
+                };
+                let time = leader.time ? new Date(leader.time) : null;
+                let timeString = time ? `${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliSeconds().toString().padStart(3, '0')}` : '';
                 leaderBoardBody.innerHTML += `
                     <tr>
                         <td>${place + 1}</td>
                         <td>${leader.player}</td>
-                        <td>${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliSeconds().toString().padStart(3, '0')}</td>
+                        <td>${timeString}</td>
                     </tr>
                 `;
-            });
+            }
             break;
         case 'least-moves':
             data.append('api', 'getLeastMoves');
@@ -168,7 +173,11 @@ const leader_board = async () => {
             `;
 
             leaderBoardBody.innerHTML = '';
-            leaders.forEach((leader, place) => {
+            for(let place = 0; place < 10; place++) {
+                let leader = leaders[place] ?? {
+                    player: '',
+                    moves: ''
+                };
                 leaderBoardBody.innerHTML += `
                     <tr>
                         <td>${place + 1}</td>
@@ -176,7 +185,7 @@ const leader_board = async () => {
                         <td>${leader.moves}</td>
                     </tr>
                 `;
-            });
+            }
             break;
         default:
             data.append('api', 'getMostWins');
@@ -191,7 +200,11 @@ const leader_board = async () => {
             `;
 
             leaderBoardBody.innerHTML = '';
-            leaders.forEach((leader, place) => {
+            for(let place = 0; place < 10; place++) {
+                let leader = leaders[place] ?? {
+                    player: '',
+                    wins: ''
+                };
                 leaderBoardBody.innerHTML += `
                     <tr>
                         <td>${place + 1}</td>
@@ -199,7 +212,7 @@ const leader_board = async () => {
                         <td>${leader.wins}</td>
                     </tr>
                 `;
-            });
+            }
     }
     
 
@@ -222,16 +235,21 @@ const leader_board = async () => {
                 `;
 
                 leaderBoardBody.innerHTML = '';
-                leaders.forEach((leader, place) => {
-                    let time = new Date(leader.time);
+                for(let place = 0; place < 10; place++) {
+                    let leader = leaders[place] ?? {
+                        player: '',
+                        time: null
+                    };
+                    let time = leader.time ? new Date(leader.time) : '';
+                    let timeString = time ? `${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliSeconds().toString().padStart(3, '0')}` : '';
                     leaderBoardBody.innerHTML += `
                         <tr>
                             <td>${place + 1}</td>
                             <td>${leader.player}</td>
-                            <td>${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliseconds().toString().padStart(3, '0')}</td>
+                            <td>${timeString}</td>
                         </tr>
                     `;
-                });
+                }
                 break;
             case 'least-moves':
                 data.append('api', 'getLeastMoves');
@@ -246,7 +264,11 @@ const leader_board = async () => {
                 `;
 
                 leaderBoardBody.innerHTML = '';
-                leaders.forEach((leader, place) => {
+                for(let place = 0; place < 10; place++) {
+                    let leader = leaders[place] ?? {
+                        player: '',
+                        moves: ''
+                    };
                     leaderBoardBody.innerHTML += `
                         <tr>
                             <td>${place + 1}</td>
@@ -254,7 +276,7 @@ const leader_board = async () => {
                             <td>${leader.moves}</td>
                         </tr>
                     `;
-                });
+                }
                 break;
             default:
                 data.append('api', 'getMostWins');
@@ -269,7 +291,11 @@ const leader_board = async () => {
                 `;
 
                 leaderBoardBody.innerHTML = '';
-                leaders.forEach((leader, place) => {
+                for(let place = 0; place < 10; place++) {
+                    let leader = leaders[place] ?? {
+                        player: '',
+                        wins: ''
+                    };
                     leaderBoardBody.innerHTML += `
                         <tr>
                             <td>${place + 1}</td>
@@ -277,11 +303,9 @@ const leader_board = async () => {
                             <td>${leader.wins}</td>
                         </tr>
                     `;
-                });
+                }
         }
         
-        
-        console.log(response)
     })
 }
 
