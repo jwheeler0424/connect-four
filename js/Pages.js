@@ -241,7 +241,7 @@ const leader_board = async () => {
                         time: null
                     };
                     let time = leader.time ? new Date(leader.time) : '';
-                    let timeString = time ? `${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliSeconds().toString().padStart(3, '0')}` : '';
+                    let timeString = time ? `${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}.${time.getMilliseconds().toString().padStart(3, '0')}` : '';
                     leaderBoardBody.innerHTML += `
                         <tr>
                             <td>${place + 1}</td>
