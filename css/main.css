@@ -122,9 +122,10 @@ li a:hover {
     max-width: 50%;
     margin: auto;
     text-align: center;
-    height: 70%;
+    height: 80%;
     background-color: #e63946;
     border-radius: 40px;
+
 }
 
 #menu {
