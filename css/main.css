@@ -42,15 +42,15 @@ td {
 }
 
 .activeHint1 {
-    border: solid 2px var(--color-player1);
+    border: solid 4px var(--color-player1);
 }
 
 .activeHint2 {
-    border: solid 2px var(--color-player2);
+    border: solid 4px var(--color-player2);
 }
 
 .activeWin {
-    border: solid 2px var(--color-win);
+    border: solid 4px var(--color-win);
 }
 
 .activePlayer1 {
@@ -234,6 +234,7 @@ li a:hover {
     text-decoration: none;
     height: 30px;
     padding-top: 12px;
+    margin-bottom: 20px;
 
 }
 
@@ -246,6 +247,48 @@ header {
 .usr-cred {
     font-family: 'Josefin Sans', sans-serif;
     font-weight: bold;
+}
+
+#board {
+    background-color: black;
+    color: black;
+}
+
+th {
+    background-color: white;
+    border-collapse: collapse;
+}
+
+#leader-board td {
+    border-radius: 0;
+}
+
+#login-form button {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    background-color: #1d3557;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    width: 90px;
+    height: 30px;
+    border-radius: 40px;
+    font-weight: normal;
+    border-style: none;
+}
+
+#name-input {
+    padding: 5px;
+    margin-left: 10px;
+    border-radius: 40px;
+    border: 3px solid #eee;
+}
+
+#password-input {
+    padding: 5px;
+    margin-left: 10px;
+    border-radius: 40px;
+    border: 2px solid #eee;
 }
 
 #welcome-msg {
