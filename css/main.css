@@ -1,16 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Josefin+Sans:wght@300&display=swap');
 
 :root {
     --color-player1: blue;
     --color-player2: red;
-    --color-win: forestgreen;
+    --color-win: #39FF14;
 }
 
 body {
     margin: 0;
     height: 100vh;
     background-color: #a8dadc;
-    color: blue;
+    color: white;
     font-family: 'Abril Fatface', cursive;
 
 }
@@ -97,6 +99,16 @@ h2 {
     font-family: 'Pacifico', cursive;
 }
 
+h3 {
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+p {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
 ul {
     list-style: none;
     margin: 0;
@@ -111,6 +123,7 @@ li {
 }
 
 a {
+    font-family: 'Josefin Sans', sans-serif;
     border-radius: 40px;
 }
 
@@ -130,9 +143,10 @@ li a:hover {
     max-width: 50%;
     margin: auto;
     text-align: center;
-    height: 80%;
+    height: 100%;
     background-color: #e63946;
     border-radius: 40px;
+
 
 }
 
@@ -149,6 +163,7 @@ li a:hover {
 
 .menu-item {
     display: block;
+    padding-top: 50px;
     margin-top: 30px;
     background-color: #1d3557;
     color: white;
@@ -157,3 +172,21 @@ li a:hover {
     text-decoration: none;
 
 }
+
+.nav-bar {
+    font-family: 'Abril Fatface', cursive;
+}
+
+#help-info {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-family: 'Josefin Sans', sans-serif;
+    line-height: 25px;
+}
+
+#help-info h3 {
+    color: black;
+    font-weight: bold;
+}
+
+main {}
