@@ -19,10 +19,13 @@ body {
 
 table {
     border: solid 4px black;
+
     text-align: center;
     margin-left: auto;
     margin-right: auto;
     background-color: #3465f7;
+    /* margin-left: 20px;
+    margin-right: 20px; */
 
 }
 
@@ -259,7 +262,12 @@ th {
     border-collapse: collapse;
 }
 
+#leader-board {
+    background-color: #e63946;
+}
+
 #leader-board td {
+
     border-radius: 0;
 }
 
