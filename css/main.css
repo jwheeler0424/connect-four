@@ -155,6 +155,7 @@ li a:hover {
     max-width: 100%;
     margin: auto;
     width: 30%;
+
 }
 
 .menu-item:hover {
@@ -167,11 +168,12 @@ li a:hover {
     margin-top: 30px;
     background-color: #1d3557;
     color: white;
-    height: 50px;
-    padding: 3px;
+    height: 30px;
+    padding-top: 12px;
     text-decoration: none;
 
 }
+
 
 .nav-bar {
     font-family: 'Abril Fatface', cursive;
@@ -182,6 +184,11 @@ li a:hover {
     padding-right: 40px;
     font-family: 'Josefin Sans', sans-serif;
     line-height: 25px;
+    height: 95%;
+    margin-bottom: 0px;
+    background-color: #e63946;
+    border-bottom: 40px;
+
 }
 
 #help-info h3 {
@@ -189,4 +196,59 @@ li a:hover {
     font-weight: bold;
 }
 
-main {}
+
+/* main menu styles */
+#login-link {
+    margin-top: 50px;
+    margin-bottom: 20px;
+    background-color: #1d3557;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    height: 30px;
+    padding-top: 12px;
+}
+
+#register-link {
+    margin-bottom: 20px;
+    background-color: #1d3557;
+    color: #fff;
+    text-decoration: none;
+    height: 30px;
+    padding-top: 12px;
+}
+
+#play-guest-link {
+    margin-bottom: 20px;
+    background-color: #1d3557;
+    color: #fff;
+    text-decoration: none;
+    height: 30px;
+    padding-top: 12px;
+}
+
+#leader-link {
+    margin-bottom: 20px;
+    background-color: #1d3557;
+    color: #fff;
+    text-decoration: none;
+    height: 30px;
+    padding-top: 12px;
+
+}
+
+header {
+    background-color: #e63946;
+    border-top-right-radius: 40px;
+    border-top-left-radius: 40px;
+}
+
+.usr-cred {
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: bold;
+}
+
+#welcome-msg {
+    color: black;
+    font-weight: bold;
+}
