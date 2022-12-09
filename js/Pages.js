@@ -81,6 +81,17 @@ const game_board = async (size = 'regular') => {
     const gameBoard = document.getElementById('game-board');
     gameBoard.style.display = 'block';
 
+    let boardStyles = localStorage.getItem('boardStyles') ? JSON.parse(localStorage.getItem('boardStyles')) : undefined;
+    if (!boardStyles) {
+        boardStyles = {
+            tableColor: '#3465f7',
+            player1Color: '#ffd700',
+            player2Color: '#C41E3A',
+            winColor: '#4CBB17'
+        };
+        localStorage.setItem('boardStyles', JSON.stringify(boardStyles))
+    }
+
     let header = document.querySelector('#app > header'), 
         game = new Game(size);
     
@@ -90,9 +101,9 @@ const game_board = async (size = 'regular') => {
         <h2 id="timer"></h2>
         <h3 id="player2">Player 2</h3>
         <nav>
-            <button id="reset-btn">Reset Game</button>
-            <button id="quit-btn">Quit Game</button>
-            <button id="super-btn">Super-Flip</button>
+            <button id="reset-btn" class="btn">Reset Game</button>
+            <button id="quit-btn" class="btn">Quit Game</button>
+            <button id="super-btn" class="btn">Super-Flip</button>
         </nav>
     `;
 
@@ -121,6 +132,70 @@ const game_board = async (size = 'regular') => {
     
     game.drawBoard();
     game.start();
+}
+
+const game_options = () => {
+    let boardStyles = localStorage.getItem('boardStyles') ? JSON.parse(localStorage.getItem('boardStyles')) : undefined;
+    if (!boardStyles) {
+        boardStyles = {
+            tableColor: '#3465f7',
+            player1Color: '#ffd700',
+            player2Color: '#C41E3A',
+            winColor: '#4CBB17'
+        };
+        localStorage.setItem('boardStyles', JSON.stringify(boardStyles))
+    }
+
+    let resetSettings = document.getElementById('reset-settings'), 
+        saveSettings = document.getElementById('save-settings'), 
+        boardPicker = document.getElementById('board-picker'), 
+        player1Picker = document.getElementById('player1-picker'), 
+        player2Picker = document.getElementById('player2-picker'),
+        winnerPicker = document.getElementById('winner-picker'),
+        message = document.getElementById('error-msg');
+
+    boardPicker.value = boardStyles.tableColor;
+    player1Picker.value = boardStyles.player1Color;
+    player2Picker.value = boardStyles.player2Color;
+    winnerPicker.value = boardStyles.winColor;
+
+    resetSettings.addEventListener('click', e => {
+        e.preventDefault();
+        boardStyles = {
+            tableColor: '#3465f7',
+            player1Color: '#ffd700',
+            player2Color: '#C41E3A',
+            winColor: '#4CBB17'
+        };
+        localStorage.setItem('boardStyles', JSON.stringify(boardStyles));
+        boardPicker.value = boardStyles.tableColor;
+        player1Picker.value = boardStyles.player1Color;
+        player2Picker.value = boardStyles.player2Color;
+        winnerPicker.value = boardStyles.winColor;
+        message.innerText = "Colors have been reset to default values."
+        setTimeout(() => {
+            message.innerText = "";
+        }, 10000)
+    })
+
+    saveSettings.addEventListener('click', e => {
+        e.preventDefault();
+        boardStyles = {
+            tableColor: boardPicker.value,
+            player1Color: player1Picker.value,
+            player2Color: player2Picker.value,
+            winColor: winnerPicker.value
+        };
+        localStorage.setItem('boardStyles', JSON.stringify(boardStyles));
+        boardPicker.value = boardStyles.tableColor;
+        player1Picker.value = boardStyles.player1Color;
+        player2Picker.value = boardStyles.player2Color;
+        winnerPicker.value = boardStyles.winColor;
+        message.innerText = "Colors have been changed successfully."
+        setTimeout(() => {
+            message.innerText = "";
+        }, 10000)
+    })
 }
 
 const leader_board = async () => {
@@ -353,6 +428,7 @@ export const loadPages = () =>
 {
     let mainMenu = document.getElementById('main-menu'),
         gameMenu = document.getElementById('game-menu'),
+        gameOptions = document.getElementById('game-options'),
         loginPlayer = document.getElementById('login-player'),
         registerPlayer = document.getElementById('register-player'),
         leaderBoard = document.getElementById('leader-board');
@@ -363,6 +439,10 @@ export const loadPages = () =>
 
     if (gameMenu) {
         game_menu();
+    }
+
+    if (gameOptions) {
+        game_options();
     }
 
     if (loginPlayer) {

@@ -77,6 +77,26 @@ class Player implements JsonSerializable
         return true;
     }
 
+    public static function getFew()
+    {
+        $db = new Database();
+        $db->query("SELECT * FROM users LIMIT 10;");
+        $results = $db->getMany();
+        $players = [];
+
+        foreach($results as $result) {
+            $player = new Player(
+                $result->username, 
+                $result->password, 
+                false, 
+                $result->name,
+                $result->id
+            );
+            $players[] = $player;
+        }
+        return $players;
+    }
+
     public static function findByID($id = -1)
     {
         $db = new Database();

@@ -9,13 +9,6 @@
     <meta name="keywords" content="Connect Four, HTML, CSS, JavaScript, PHP, MySQL">
     <meta name="author" content="Aakash Sharma, Jonathan Wheeler">
     <link rel="stylesheet" href="./css/main.css">
-
-    <!-- fonts api -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <style> @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); </style>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');</style>    
-    
-
 </head>
 <body>
     <header id="connect-four">
@@ -31,21 +24,31 @@
         </nav>
     </header>
     <main id="app">
-        <header id="game-header">
-            <h2>Game Menu</h2>
+        <header>
+            <h2>Game Options</h2>
         </header>
-        <section id="game-menu">
-            <p id="welcome-msg"></p>
-            <nav id="menu">
-                <a class="btn" href="./game.html" id="start-link">Start Game</a>
-                <a class="btn" href="./game.html" id="start-large-link">Start Large Game</a>
-                <a class="btn" href="./options.html" id="options-link">Options Settings</a>
-                <a class="btn" href="./" id="menu-link">Main Menu</a>
-                <a class="btn" href="./leaderboard.html" id="leader-link">Leaderboard</a>
-            </nav>
-        </section>
-        <section id="game-board">
-            <div id="game"></div>
+        <section id="game-options">
+            <p id="error-msg"></p>
+            <form action="./options.html" id="options-form">
+                <fieldset>
+                    <label for="board-picker">Board Color:</label>
+                    <input type="color" name="board" id="board-picker" required>
+                </fieldset>
+                <fieldset>
+                    <label for="player1-picker">Player 1 Color:</label>
+                    <input type="color" name="player1" id="player1-picker" required>
+                </fieldset>
+                <fieldset>
+                    <label for="player2-picker">Player 2 Color:</label>
+                    <input type="color" name="player2" id="player2-picker" required>
+                </fieldset>
+                <fieldset>
+                    <label for="winner-picker">Winner Color:</label>
+                    <input type="color" name="winner" id="winner-picker" required>
+                </fieldset>
+                <button type="button" class="btn" id="reset-settings">Reset Settings</button>
+                <button type="submit" class="btn" id="save-settings">Save Settings</button>
+            </form>
         </section>
     </main>
     <script src="js/app.js" type="module"></script>

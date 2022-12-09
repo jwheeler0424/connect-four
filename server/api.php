@@ -21,6 +21,7 @@ $method = $_POST['api'];
 switch($method)
 {
     case 'getPlayer':
+
         if (isset($_SESSION['uid']) || isset($_SESSION['isLoggedIn'])) {
            $player = Player::findByID($_SESSION['uid'] ?? -1);
             if ($player) {

@@ -26,10 +26,15 @@ export class Game
                 cols = 7;
         }
         let savedGame = JSON.parse(localStorage.getItem('game'));
-        localStorage.setItem('superflip', JSON.stringify({
-            player1: true,
-            player2: true
-        }))
+        let superFlip = JSON.parse(localStorage.getItem('superflip')) ?? undefined;
+
+        if (!superFlip) {
+            localStorage.setItem('superflip', JSON.stringify({
+                player1: true,
+                player2: true
+            }))
+        }
+        
         
         if (savedGame) {
             this.rows = savedGame.rows;
@@ -59,6 +64,9 @@ export class Game
         const board = document.createElement('tbody');
         gameSpace.innerHTML = '';
 
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
+        container.style.backgroundColor = boardStyles.tableColor;
+
         let superBtn = document.getElementById('super-btn');
         let superflip = false;
 
@@ -69,30 +77,38 @@ export class Game
                 player2: false
             }))
             if (this.currentPlayer === 1) {
-                player1title.classList.add('activeWinner');
-                player2title.classList.remove('activeWinner');
+                player1title.style.borderColor = boardStyles.winColor;
+                player1title.style.color = boardStyles.winColor;
+                player1title.style.fontWeight = 'bold';
+                player2title.removeAttribute('style');
             } else {
-                player1title.classList.remove('activeWinner');
-                player2title.classList.add('activeWinner');
+                player1title.removeAttribute('style');
+                player2title.style.borderColor = boardStyles.winColor;
+                player2title.style.color = boardStyles.winColor;
+                player2title.style.fontWeight = 'bold';
             }
         } else {
             if (this.currentPlayer === 1) {
                 superflip = JSON.parse(localStorage.getItem('superflip')).player1;
-                player1title.classList.add('activePlayer1');
-                player2title.classList.remove('activePlayer2');
+                player1title.style.borderColor = boardStyles.player1Color;
+                player1title.style.color = boardStyles.player1Color;
+                player1title.style.fontWeight = 'bold';
+                player2title.removeAttribute('style');
             } else {
                 superflip = JSON.parse(localStorage.getItem('superflip')).player2;
-                player1title.classList.remove('activePlayer1');
-                player2title.classList.add('activePlayer2');
+                player1title.removeAttribute('style');
+                player2title.style.borderColor = boardStyles.player2Color;
+                player2title.style.color = boardStyles.player2Color;
+                player2title.style.fontWeight = 'bold';
             }
         }
 
         if (!superflip) {
             superBtn.disabled = true;
-            superBtn.style.visibility = 'hidden';
+            superBtn.style.display = 'none';
         } else  {
             superBtn.disabled = false;
-            superBtn.style.visibility = 'visible'
+            superBtn.style.display = 'block'
         }
 
         for (let r = 0; r <= this.rows; r++) {
@@ -104,8 +120,8 @@ export class Game
                 td.setAttribute('data-row', r)
                 td.innerHTML = this.board[r][c] !== 0 
                     ? this.board[r][c].player === 1 
-                        ? `<div class="player1_piece">${this.board[r][c].currentMove}</div>`
-                        : `<div class="player2_piece">${this.board[r][c].currentMove}</div>` 
+                        ? `<div class="player_piece" style="background-color: ${boardStyles.player1Color}">${this.board[r][c].currentMove}</div>`
+                        : `<div class="player_piece" style="background-color: ${boardStyles.player2Color}">${this.board[r][c].currentMove}</div>` 
                     : '';
                 tr.appendChild(td);
             }
@@ -116,6 +132,10 @@ export class Game
         
         if (state !== 'gameover' && !gameOver) {
             this.getHints(this.currentPlayer);
+            let activeWinCells = document.querySelectorAll('.activeWin');
+            activeWinCells.forEach(cell => {
+                cell.removeAttribute('style')
+            })
 
             let cells = board.querySelectorAll('td');
 
@@ -161,8 +181,10 @@ export class Game
             win.forEach(cell => {
                 let r = cell[0], c = cell[1];
                 let winCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                winCell.classList.add('activeWin');
+                winCell.style.borderColor = boardStyles.winColor;
             })
+            localStorage.removeItem('win')
+            localStorage.removeItem('game')
         }
     }
 
@@ -182,7 +204,6 @@ export class Game
             data.append('time', gameTime);
             data.append('moves', playerMoves);
 
-            //await postRequest("../server/api.php", data);
             this.end();
         }
     }
@@ -204,6 +225,12 @@ export class Game
 
     getHints()
     {
+        let board = document.querySelector('#game > table');
+        let cells = board.querySelectorAll('td');
+        cells.forEach(cell => {
+            cell.removeAttribute('style')
+        })
+
         let connect3 = this.getMatchThreeMoves();
         let connect2 = this.getMatchTwoMoves();
 
@@ -531,6 +558,7 @@ export class Game
 
     getVerticalHints(connect3)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect3.vertical.length >= 1) {
             connect3.vertical.forEach(match => {
                 let front = match[0], back = match[2], r, c;
@@ -543,7 +571,11 @@ export class Game
                     r = front[0] - 1;
                     c = front[1];
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -580,6 +612,7 @@ export class Game
 
     getHorizontalHints(connect3)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect3.horizontal.length >= 1) {
             connect3.horizontal.forEach(match => {
                 let front = match[0], back = match[2], r, c;
@@ -594,7 +627,11 @@ export class Game
                     r = front[0];
                     c = front[1] - 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
 
                 // Check if right space exists and is empty
@@ -608,7 +645,11 @@ export class Game
                     r = back[0];
                     c = back[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -616,6 +657,7 @@ export class Game
 
     getHorizontalSplitHints(connect2)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect2.horizontal.length >= 1) {
             connect2.horizontal.forEach(match => {
                 let front = match[0], back = match[1], r, c;
@@ -632,7 +674,11 @@ export class Game
                     r = front[0];
                     c = front[1] - 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
 
                 // Check if right space exists and is empty
@@ -648,7 +694,11 @@ export class Game
                     r = back[0];
                     c = back[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -690,6 +740,7 @@ export class Game
 
     getDiagForwardHints(connect3)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect3.diagForward.length >= 1) {
             connect3.diagForward.forEach(match => {
                 let front = match[0], back = match[2], r, c;
@@ -704,7 +755,11 @@ export class Game
                     r = front[0] - 1;
                     c = front[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
                 // Check if bottom left space exists and is empty
                 if (
@@ -715,7 +770,11 @@ export class Game
                     r = back[0] + 1;
                     c = back[1] - 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -723,6 +782,7 @@ export class Game
 
     getDiagForwardSplitHints(connect2)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect2.diagForward.length >= 1) {
             connect2.diagForward.forEach(match => {
                 let front = match[0], back = match[1], r, c;
@@ -741,7 +801,11 @@ export class Game
                     r = front[0] - 1;
                     c = front[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
 
                 // Check if bottom left space exists and is empty
@@ -758,7 +822,11 @@ export class Game
                     r = back[0] + 1;
                     c = back[1] - 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -800,6 +868,7 @@ export class Game
 
     getDiagBackwardHints(connect3)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect3.diagBackward.length >= 1) {
             connect3.diagBackward.forEach(match => {
                 let front = match[0], back = match[2], r, c;
@@ -816,7 +885,11 @@ export class Game
                     c = front[1] - 1;
                     
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
                 
                 // Check if bottom right space exists and is empty
@@ -831,7 +904,11 @@ export class Game
                     r = back[0] + 1;
                     c = back[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }
@@ -839,6 +916,7 @@ export class Game
 
     getDiagBackwardSplitHints(connect2)
     {
+        let boardStyles = JSON.parse(localStorage.getItem('boardStyles'));
         if (connect2.diagBackward.length >= 1) {
             connect2.diagBackward.forEach(match => {
                 let front = match[0], back = match[1], r, c;
@@ -858,7 +936,11 @@ export class Game
                     c = front[1] - 1;
                     
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
                 
                 // Check if bottom right space exists and is empty
@@ -876,7 +958,11 @@ export class Game
                     r = back[0] + 1;
                     c = back[1] + 1;
                     let hintCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    hintCell.classList.add(`activeHint${this.currentPlayer}`);
+                    if (this.currentPlayer === 1) {
+                        hintCell.style.borderColor = boardStyles.player1Color;
+                    } else if (this.currentPlayer === 2) {
+                        hintCell.style.borderColor = boardStyles.player2Color;
+                    }
                 }
             })
         }

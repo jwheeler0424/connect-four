@@ -7,6 +7,9 @@
 
 include_once('./config.php');
 
+include_once 'Player.php';
+include_once 'Game.php';
+
 // Set database connection options
 $dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';';
 $options = [
@@ -50,6 +53,24 @@ $sql = "CREATE TABLE IF NOT EXISTS `games`
 
 $statement = $pdo->prepare($sql);
 $statement->execute();
+
+$players = Player::getFew();
+if (count($players) <= 0) {
+    $playerAr = json_decode(file_get_contents('../users.json'));
+    foreach($playerAr as $playerData) {
+        $player = new Player($playerData->username, $playerData->password, false, $playerData->name);
+        $player = $player->create();
+    }
+}
+
+$games = Game::getFew();
+if (count($games) <= 0) {
+    $gameAr = json_decode(file_get_contents('../games.json'));
+    foreach($gameAr as $gameData) {
+        $game = new Game($gameData->user_id, $gameData->win, $gameData->time, $gameData->moves);
+        $game = $game->create();
+    }
+}
 
 echo json_encode([
     'installed' => true

@@ -75,6 +75,26 @@ class Game implements JsonSerializable
         return true;
     }
 
+    public static function getFew()
+    {
+        $db = new Database();
+        $db->query("SELECT * FROM games LIMIT 10;");
+        $results = $db->getMany();
+        $games = [];
+
+        foreach($results as $result) {
+            $game = new Game(
+                $result->user_id, 
+                $result->win, 
+                $result->time, 
+                $result->moves, 
+                $result->id
+            );
+            $games[] = $game;
+        }
+        return $games;
+    }
+
     public static function findByID($id = -1)
     {
         $db = new Database();
