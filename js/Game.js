@@ -72,10 +72,12 @@ export class Game
 
         let gameOver = !!localStorage.getItem('win') ?? false;
         if (gameOver) {
-            localStorage.setItem('superflip', JSON.stringify({
-                player1: false,
-                player2: false
-            }))
+            if (localStorage.getItem('superflip')) {
+                localStorage.setItem('superflip', JSON.stringify({
+                    player1: false,
+                    player2: false
+                }))
+            }
             if (this.currentPlayer === 1) {
                 player1title.style.borderColor = boardStyles.winColor;
                 player1title.style.color = boardStyles.winColor;
@@ -147,10 +149,7 @@ export class Game
                     if (win) {
                         localStorage.setItem('win', JSON.stringify(win));
                         clearInterval(this.interval);
-                        localStorage.setItem('superflip', JSON.stringify({
-                            player1: false,
-                            player2: false
-                        }))
+                        localStorage.removeItem('superflip');
                         localStorage.setItem('game', JSON.stringify(this));
                         this.saveGame(this.currentPlayer);
                         this.drawBoard('gameover');
@@ -183,8 +182,6 @@ export class Game
                 let winCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
                 winCell.style.borderColor = boardStyles.winColor;
             })
-            localStorage.removeItem('win')
-            localStorage.removeItem('game')
         }
     }
 
@@ -194,6 +191,7 @@ export class Game
         
         if (player.loggedIn) {
             let game = JSON.parse(localStorage.getItem('game'));
+            
             let gameTime = new Date(game.gameTime).getTime();
             let playerMoves = this.getPlayerMoves(1);
 
@@ -204,8 +202,9 @@ export class Game
             data.append('time', gameTime);
             data.append('moves', playerMoves);
 
-            this.end();
+            const response = await postRequest("../server/api.php", data);
         }
+        this.end();
     }
 
     setPiece(player, col)
@@ -229,6 +228,18 @@ export class Game
         let cells = board.querySelectorAll('td');
         cells.forEach(cell => {
             cell.removeAttribute('style')
+            let row = parseInt(cell.dataset.row),
+                col = parseInt(cell.dataset.col),
+                win = this.connectFour(this.currentPlayer, row, col);
+                   
+            if (win) {
+                localStorage.setItem('win', JSON.stringify(win));
+                clearInterval(this.interval);
+                localStorage.removeItem('superflip');
+                localStorage.setItem('game', JSON.stringify(this));
+                this.saveGame(this.currentPlayer);
+                this.drawBoard('gameover');
+            }
         })
 
         let connect3 = this.getMatchThreeMoves();
@@ -513,26 +524,41 @@ export class Game
     {
         
         // check vertical space
-        let vertical = this.checkVertical(player, row, col);
-        if (vertical.length === 4) {
+        let vertical = this.checkVertical(player, row, col).sort();
+        if (vertical.length >= 4) {
             return vertical
         }
 
         // check horizontal space
-        let horizontal = this.checkHorizontal(player, row, col);
-        if (horizontal.length === 4) {
+        let horizontal = this.checkHorizontal(player, row, col).sort();
+        horizontal = horizontal.filter((set, index, array) => {
+            if (index !== 0) {
+                return set[1] - 1 === array[index-1][1];
+            };
+        })
+        if (horizontal.length >= 4) {
             return horizontal
         }
 
         // check forward diagonal
-        let diagForward = this.checkDiagForward(player, row, col);
-        if (diagForward.length === 4) {
+        let diagForward = this.checkDiagForward(player, row, col).sort();
+        diagForward = diagForward.filter((set, index, array) => {
+            if (index !== 0) {
+                return set[1] - 1 === array[index-1][1];
+            };
+        })
+        if (diagForward.length >= 4) {
             return diagForward
         }
 
         // check backward diagonal
-        let diagBackward = this.checkDiagBackward(player, row, col);
-        if (diagBackward.length === 4) {
+        let diagBackward = this.checkDiagBackward(player, row, col).sort();
+        diagBackward = diagBackward.filter((set, index, array) => {
+            if (index !== 0) {
+                return set[1] - 1 === array[index-1][1];
+            };
+        })
+        if (diagBackward.length >= 4) {
             return diagBackward
         }
         
@@ -584,7 +610,9 @@ export class Game
     checkHorizontal(player, row, col)
     {
         let connected = [];
-        connected.push([row, col]);
+        if (this.board[row][col] && this.board[row][col].player === player) {
+            connected.push([row, col]);
+        }
         let maxWidth = this.cols;
 
         let tempCol = col - 1;
@@ -709,7 +737,9 @@ export class Game
         let connected = [];
         let maxHeight = this.rows;
         let maxWidth = this.cols;
-        connected.push([row, col]);
+        if (this.board[row][col] && this.board[row][col].player === player) {
+            connected.push([row, col]);
+        }
 
         let tempCol = col - 1;
         let tempRow = row + 1;
@@ -837,7 +867,9 @@ export class Game
         let connected = [];
         let maxHeight = this.rows;
         let maxWidth = this.cols;
-        connected.push([row, col]);
+        if (this.board[row][col] && this.board[row][col].player === player) {
+            connected.push([row, col]);
+        }
         
         let tempCol = col - 1;
         let tempRow = row - 1;
@@ -920,7 +952,7 @@ export class Game
         if (connect2.diagBackward.length >= 1) {
             connect2.diagBackward.forEach(match => {
                 let front = match[0], back = match[1], r, c;
-                console.log(front, back)
+                
                 // Check if top left space exists and is empty
                 if (
                     this.board[front[0] - 1] !== undefined 
