@@ -202,7 +202,7 @@ export class Game
             data.append('time', gameTime);
             data.append('moves', playerMoves);
 
-            const response = await postRequest("../server/api.php", data);
+            const response = await postRequest("./server/api.php", data);
         }
         this.end();
     }
@@ -534,7 +534,7 @@ export class Game
         horizontal = horizontal.filter((set, index, array) => {
             if (index !== 0) {
                 return set[1] - 1 === array[index-1][1];
-            };
+            } else return true
         })
         if (horizontal.length >= 4) {
             return horizontal
@@ -544,8 +544,8 @@ export class Game
         let diagForward = this.checkDiagForward(player, row, col).sort();
         diagForward = diagForward.filter((set, index, array) => {
             if (index !== 0) {
-                return set[1] - 1 === array[index-1][1];
-            };
+                return set[0] - 1 === array[index-1][0] && set[1] + 1 === array[index-1][1];
+            } else return true
         })
         if (diagForward.length >= 4) {
             return diagForward
@@ -555,8 +555,8 @@ export class Game
         let diagBackward = this.checkDiagBackward(player, row, col).sort();
         diagBackward = diagBackward.filter((set, index, array) => {
             if (index !== 0) {
-                return set[1] - 1 === array[index-1][1];
-            };
+                return set[0] - 1 === array[index-1][0] && set[1] - 1 === array[index-1][1];
+            } else return true
         })
         if (diagBackward.length >= 4) {
             return diagBackward
@@ -867,7 +867,8 @@ export class Game
         let connected = [];
         let maxHeight = this.rows;
         let maxWidth = this.cols;
-        if (this.board[row][col] && this.board[row][col].player === player) {
+        
+        if (this.board[row][col] && this.board[row][col].player == player) {
             connected.push([row, col]);
         }
         
@@ -894,7 +895,6 @@ export class Game
             tempCol ++;
             tempRow ++;
         }
-        
         return connected;
     }
 

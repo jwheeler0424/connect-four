@@ -23,7 +23,7 @@ const login_player = () => {
             message.innerText = 'Incorrect username and/or password.'
             loginForm.reset();
         } else {
-            window.location = '../';
+            window.location = './';
         }
     });
 }
@@ -40,7 +40,7 @@ const register_player = () => {
             message.innerText = 'An error occured with registering user.'
             registerForm.reset();
         } else {
-            window.location = '../';
+            window.location = './';
         }
     });
 }
@@ -208,7 +208,7 @@ const leader_board = async () => {
     {
         case 'fastest-games':
             data.append('api', 'getFastestGames');
-            response = await postRequest("../server/api.php", data);
+            response = await postRequest("./server/api.php", data);
             leaders = response.leaders;
             leaderBoardHeader.innerHTML = `
                 <tr>
@@ -237,7 +237,7 @@ const leader_board = async () => {
             break;
         case 'least-moves':
             data.append('api', 'getLeastMoves');
-            response = await postRequest("../server/api.php", data);
+            response = await postRequest("./server/api.php", data);
             leaders = response.leaders;
             leaderBoardHeader.innerHTML = `
                 <tr>
@@ -264,7 +264,7 @@ const leader_board = async () => {
             break;
         default:
             data.append('api', 'getMostWins');
-            response = await postRequest("../server/api.php", data);
+            response = await postRequest("./server/api.php", data);
             leaders = response.leaders;
             leaderBoardHeader.innerHTML = `
                 <tr>
@@ -299,7 +299,7 @@ const leader_board = async () => {
         {
             case 'fastest-games':
                 data.append('api', 'getFastestGames');
-                response = await postRequest("../server/api.php", data);
+                response = await postRequest("./server/api.php", data);
                 leaders = response.leaders;
                 leaderBoardHeader.innerHTML = `
                     <tr>
@@ -328,7 +328,7 @@ const leader_board = async () => {
                 break;
             case 'least-moves':
                 data.append('api', 'getLeastMoves');
-                response = await postRequest("../server/api.php", data);
+                response = await postRequest("./server/api.php", data);
                 leaders = response.leaders;
                 leaderBoardHeader.innerHTML = `
                     <tr>
@@ -355,7 +355,7 @@ const leader_board = async () => {
                 break;
             default:
                 data.append('api', 'getMostWins');
-                response = await postRequest("../server/api.php", data);
+                response = await postRequest("./server/api.php", data);
                 leaders = response.leaders;
                 leaderBoardHeader.innerHTML = `
                     <tr>

@@ -27,7 +27,7 @@ export class Player
      */
     async login(data)
     {
-        const response = await postRequest("../server/api.php", data);
+        const response = await postRequest("./server/api.php", data);
         if (response.status === 'success') {
             this.id = response.player.id
             this.username = response.player.username;
@@ -51,7 +51,7 @@ export class Player
      */
     async register(data)
     {
-        const response = await postRequest("../server/api.php", data);
+        const response = await postRequest("./server/api.php", data);
         
         if (response.status === 'success') {
             this.id = response.player.id
@@ -68,7 +68,7 @@ export class Player
         const data = new FormData();
         data.append('api', 'logoutUser');
 
-        const response = await postRequest("../server/api.php", data);
+        const response = await postRequest("./server/api.php", data);
         if (response.status === 'success') {
             this.id = undefined
             this.username = 'guest';
@@ -84,7 +84,7 @@ export class Player
         const data = new FormData();
         data.append('api', 'getPlayer');
 
-        const response = await postRequest("../server/api.php", data);
+        const response = await postRequest("./server/api.php", data);
         if (response.status === 'success') {
             this.id = response.player.id
             this.username = response.player.username;

@@ -13,6 +13,6 @@ export const checkInstall = new Promise((resolve, reject) => {
         }
     }
 
-    request.open("GET", "../server/install.php");
+    request.open("GET", "./server/install.php");
     request.send();
 });
